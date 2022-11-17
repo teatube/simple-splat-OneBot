@@ -7,8 +7,8 @@ profileRegex: /^(?:=>|=》|-\)|-）|=\)|=）)(.+)$/
 # WebSocket 服务器地址
 wsServer: ws://127.0.0.1:6700
 
-# User-Agent 用户代理 / 浏览器标识
+# UserAgent 用户代理 / 浏览器标识
 # 虽然没有这个也可以访问，但是在这里标明可联系方式后
 # 在bot出问题时（如在修改过程中频繁请求），接口作者可以首先选择直接联系你，而不是首先ban掉你的ip
 # -by splatoon3.ink
-User-Agent: splat-onebot-simple
+UserAgent: splat-onebot-simple

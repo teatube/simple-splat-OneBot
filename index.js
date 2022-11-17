@@ -204,7 +204,7 @@ async function getSchedule(url,loadMsg,successMsg) {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': ''
+        'User-Agent': config.UserAgent
       }
     });
     console.log(data);
