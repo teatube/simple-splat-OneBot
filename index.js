@@ -4,7 +4,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 
 const config = yaml.load(fs.readFileSync('./config.yml', 'utf8'));
-const profileRegex = config.profileRegex;
+const profileRegex = new RegExp(config.profileRegex);
 const wsEvent = new WebSocket(config.wsServer);
 
 wsEvent.on('open', () => {
