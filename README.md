@@ -1,4 +1,4 @@
-# simple-splat-onebot
+# simple-splat-OneBot
 
 A simple splatoon bot for OneBot.
 
