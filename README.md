@@ -1,4 +1,4 @@
-# simple-splat-onebot
+# simple-splat-OneBot
 
 A simple splatoon bot for OneBot.
 
@@ -49,6 +49,14 @@ A simple splatoon bot for OneBot.
 
 ### 2. 下载本项目
 
+使用 git Bash
+
+```bash
+git clone https://github.com/teatube/simple-splat-OneBot.git
+```
+
+[git下载](https://git-scm.com/downloads)
+
 ### 3. 安装依赖
 
 ```bash
@@ -56,6 +64,10 @@ npm install
 # 或
 yarn
 ```
+
+npm 指令需要安装 [Node.js](https://nodejs.org/zh-cn/) 才可以使用.
+
+国内网络可以考虑 [cnpm](https://github.com/cnpm/cnpm) 以及 [tyarn](https://github.com/yiminghe/tyarn) 使用淘宝镜像加速.
 
 ### 4. 修改配置文件，启用 ws 正向协议
 
