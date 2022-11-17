@@ -34,6 +34,7 @@ A simple splatoon bot for OneBot.
 指令：=>2工全
 
 ![=》2工全](readme-images/05.png)
+
 2代打工地图全量输出中，含有随机武器时的具体可能随机到的熊武器。示例：
 
 ![随机熊武器提示](readme-images/06.png)  
