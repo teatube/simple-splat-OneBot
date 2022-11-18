@@ -71,6 +71,33 @@ getSchedules();
 //   });
 // }
 
+// 重命名文件
+function rename(oldPath, newPath) {
+  fs.rename(oldPath, newPath, function (err) {
+    if (err) {
+      throw err;
+    }
+    console.log(`旧文件名：${oldPath}，新文件名：${newPath} 已完成`);
+  });
+}
+
+function renameWeapons2() {
+  // 读取 images/weapons2/splatoon2-data.json
+  const weapons2 = JSON.parse(fs.readFileSync('./images/weapons2/splatoon2-data.json', 'utf8'));
+  weapons2?.weapons?.forEach((weapon) => {
+    // 读取名字：读取最后一个/后面的内容
+    const name = weapon.image.split('/').pop();
+    try {
+      rename(`./images/weapons2/${name}`,`./images/weapons2/${weapon.id}.png`);
+    } catch (e) {
+      console.log(`./images/weapons2/${name} 不存在`)
+      console.log(e);
+    }
+  });
+}
+
+renameWeapons2();
+
 // 检测小时数更新
 function checkHourUpdate(hourLast) {
   const now = new Date();
@@ -106,8 +133,8 @@ function doCommand(command) {
       return getCoopMapDataSchedules2(scheduleData2Coop);
     case `2工全`:
       return getCoopMapDataSchedules2New(scheduleData2CoopNew);
-    // case `a`:
-    //   return downloadImages3(scheduleData3);
+    case `a`:
+      return renameWeapons2();
     default:
       break;
   }
