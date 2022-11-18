@@ -43,6 +43,34 @@ getTranlations3();
 getTranlations2();
 getSchedules();
 
+
+
+// function downloadImages3(scheduleData2){
+//   downloadImage(`https://splatoon2.ink/assets/splatnet/images/coop_stage/e9f7c7b35e6d46778cd3cbc0d89bd7e1bc3be493.png`,`5003`);
+//   downloadImage(`https://splatoon2.ink/assets/splatnet/images/coop_stage/e07d73b7d9f0c64e552b34a2e6c29b8564c63388.png`,`5001`)
+//   downloadImage(`https://splatoon2.ink/assets/splatnet/images/coop_stage/65c68c6f0641cc5654434b78a6f10b0ad32ccdee.png`,`5000`)
+//   downloadImage(`https://splatoon2.ink/assets/splatnet/images/coop_stage/6d68f5baa75f3a94e5e9bfb89b82e7377e3ecd2c.png`,`5002`)
+//   downloadImage(`https://splatoon2.ink/assets/splatnet/images/coop_stage/50064ec6e97aac91e70df5fc2cfecf61ad8615fd.png`,`5004`)
+// }
+
+// function downloadImage(url,name) {
+//   const path = name? `${name}.png` : url.split('/').pop();
+//   const writer = fs.createWriteStream(`./images/stages2coop/${path}`);
+//   axios({
+//     url,
+//     method: 'GET',
+//     responseType: 'stream'
+//   }).then(response => {
+//     response.data.pipe(writer);
+//     return new Promise((resolve, reject) => {
+//       writer.on('finish', resolve);
+//       writer.on('error', reject);
+//     });
+//   }).catch(err => {
+//     console.log(err);
+//   });
+// }
+
 // 检测小时数更新
 function checkHourUpdate(hourLast) {
   const now = new Date();
@@ -78,6 +106,8 @@ function doCommand(command) {
       return getCoopMapDataSchedules2(scheduleData2Coop);
     case `2工全`:
       return getCoopMapDataSchedules2New(scheduleData2CoopNew);
+    // case `a`:
+    //   return downloadImages3(scheduleData3);
     default:
       break;
   }
@@ -218,7 +248,7 @@ async function getSchedule(url,loadMsg,successMsg) {
 
 async function getTranlations3() {
   // 读取同目录下translation.json
-  const data = fs.readFileSync('./translation3.json');
+  const data = fs.readFileSync('./tranlations/translation3.json');
   translationsData = JSON.parse(data);
   // console.log("3代翻译数据已获取，可以执行其他操作");
   return translationsData;
@@ -226,7 +256,7 @@ async function getTranlations3() {
 
 async function getTranlations2() {
   // 读取同目录下translation.json
-  const data = fs.readFileSync('./translation2.json');
+  const data = fs.readFileSync('./tranlations/translation2.json');
   translationsData2 = JSON.parse(data);
   // console.log("2代翻译数据已获取，可以执行其他操作");
   return translationsData2;
