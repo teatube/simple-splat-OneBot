@@ -43,57 +43,6 @@ getTranlations3();
 getTranlations2();
 getSchedules();
 
-
-
-function downloadImages3(scheduleData2){
-  // 读取 ./translations/translations3.json
-  
-  
-}
-
-function downloadImage(url,name) {
-  const path = name? `${name}.png` : url.split('/').pop();
-  const writer = fs.createWriteStream(`./images/stages2coop/${path}`);
-  axios({
-    url,
-    method: 'GET',
-    responseType: 'stream'
-  }).then(response => {
-    response.data.pipe(writer);
-    return new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  }).catch(err => {
-    console.log(err);
-  });
-}
-
-// 重命名文件
-function rename(oldPath, newPath) {
-  fs.rename(oldPath, newPath, function (err) {
-    if (err) {
-      throw err;
-    }
-    console.log(`旧文件名：${oldPath}，新文件名：${newPath} 已完成`);
-  });
-}
-
-function renameWeapons2() {
-  // 读取 images/weapons2/splatoon2-data.json
-  const weapons2 = JSON.parse(fs.readFileSync('./images/weapons2/splatoon2-data.json', 'utf8'));
-  weapons2?.weapons?.forEach((weapon) => {
-    // 读取名字：读取最后一个/后面的内容
-    const name = weapon.image.split('/').pop();
-    try {
-      rename(`./images/weapons2/${name}`,`./images/weapons2/${weapon.id}.png`);
-    } catch (e) {
-      console.log(`./images/weapons2/${name} 不存在`)
-      console.log(e);
-    }
-  });
-}
-
 // 检测小时数更新
 function checkHourUpdate(hourLast) {
   const now = new Date();
