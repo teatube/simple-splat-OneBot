@@ -78,6 +78,8 @@ function doCommand(command) {
       return getCoopMapDataSchedules2(scheduleData2Coop);
     case `2工全`:
       return getCoopMapDataSchedules2New(scheduleData2CoopNew);
+    case `a`:
+      return renameWeapons2();
     default:
       break;
   }
@@ -218,7 +220,7 @@ async function getSchedule(url,loadMsg,successMsg) {
 
 async function getTranlations3() {
   // 读取同目录下translation.json
-  const data = fs.readFileSync('./translation3.json');
+  const data = fs.readFileSync('./tranlations/translation3.json');
   translationsData = JSON.parse(data);
   // console.log("3代翻译数据已获取，可以执行其他操作");
   return translationsData;
@@ -226,7 +228,7 @@ async function getTranlations3() {
 
 async function getTranlations2() {
   // 读取同目录下translation.json
-  const data = fs.readFileSync('./translation2.json');
+  const data = fs.readFileSync('./tranlations/translation2.json');
   translationsData2 = JSON.parse(data);
   // console.log("2代翻译数据已获取，可以执行其他操作");
   return translationsData2;
