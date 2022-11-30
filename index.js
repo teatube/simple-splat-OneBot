@@ -245,8 +245,18 @@ function getMapDataFromSchedules3(scheduleData3) {
     for (let offset = 0; offset < num; offset++) {
       // result += `涂地对战：\n`;
       result += get3RegularMatches(scheduleData3, offset);
+      result += `\n`;
       // result += `真格对战：\n`;
       result += get3BankaraMatches(scheduleData3, offset);
+      // 如果当前时间在2022年12月1日8点之后
+      if (new Date().getTime() > new Date('2022-12-01 08:00:00').getTime()) {
+        result += `\n`;
+        // result += `X对战：\n`;
+        result += get3XMatches(scheduleData3, offset);
+      }
+      // result += `\n`;
+      // result += `联赛对战：\n`;
+      // result += get3LeagueMatches(scheduleData3, offset);
       if (offset < num - 1) {
         result += `\n--------------\n`;
       }
@@ -270,7 +280,6 @@ function get3RegularMatches(scheduleData3,offset) {
     const startTime = new Date(node?.startTime).toLocaleString();
     result += `${startTime.toLocaleString()}：\n`;
     result += getDetailData3('一般对战', node?.regularMatchSetting);
-    result += `\n`;
   }, this);
   return result;
 }
@@ -285,10 +294,32 @@ function get3BankaraMatches(scheduleData3,offset) {
       node?.bankaraMatchSettings.forEach((setting, bankaraIndex, bankaraArray) => {
         result += getDetailData3('蛮颓挑战', setting);
         if (bankaraIndex < bankaraArray.length - 1) {
-          result += `\n`
+          result += `\n`;
         }
       }, this);
     }
+  }, this);
+  return result;
+}
+
+function get3XMatches(scheduleData3,offset) {
+  let result = '';
+  scheduleData3?.data?.xSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
+    // 将字符串时间node?.startTime转换为本地时间字符串
+    const startTime = new Date(node?.startTime).toLocaleString();
+    // result += `${startTime.toLocaleString()}：\n`;
+    result += getDetailData3(' Ｘ 对战', node?.xMatchSetting);
+  }, this);
+  return result;
+}
+
+function get3LeagueMatches(scheduleData3,offset) {
+  let result = '';
+  scheduleData3?.data?.leagueSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
+    // 将字符串时间node?.startTime转换为本地时间字符串
+    const startTime = new Date(node?.startTime).toLocaleString();
+    // result += `${startTime.toLocaleString()}：\n`;
+    result += getDetailData3('联赛对战', node?.leagueMatchSetting);
   }, this);
   return result;
 }
