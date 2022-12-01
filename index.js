@@ -248,12 +248,9 @@ function getMapDataFromSchedules3(scheduleData3) {
       result += `\n`;
       // result += `真格对战：\n`;
       result += get3BankaraMatches(scheduleData3, offset);
-      // 如果当前时间在2022年12月1日8点之后
-      if (new Date().getTime() > new Date('2022-12-01 08:00:00').getTime()) {
-        result += `\n`;
-        // result += `X对战：\n`;
-        result += get3XMatches(scheduleData3, offset);
-      }
+      result += `\n`;
+      // result += `X对战：\n`;
+      result += get3XMatches(scheduleData3, offset);
       // result += `\n`;
       // result += `联赛对战：\n`;
       // result += get3LeagueMatches(scheduleData3, offset);

@@ -47,6 +47,12 @@
         },
         "Q29vcFN0YWdlLTY=": {
             "name": "漂浮落难船"
+        },
+        "VnNTdGFnZS03": {
+            "name": "臭鱼干温泉"
+        },
+        "VnNTdGFnZS05": {
+            "name": "比目鱼住宅区"
         }
     },
     "rules": {
@@ -291,6 +297,9 @@
         },
         "7f8967b3ae112ffc": {
             "name": "宽滚筒"
+        },
+        "a1ea7028b1bcdd28": {
+            "name": "R-PEN/5H"
         }
     },
     "brands": {
@@ -850,6 +859,18 @@
         },
         "15d0c6619faead78": {
             "name": "捕手面罩FU"
+        },
+        "940500ce3bf4cc00": {
+            "name": "MOVE跑鞋 红色"
+        },
+        "ff8cd1836a1d4fc2": {
+            "name": "天亚8篮球鞋 红色"
+        },
+        "878e926050e1816b": {
+            "name": "章鱼先生T恤"
+        },
+        "8bf529c3f3753265": {
+            "name": "乒乓球Polo衫"
         }
     },
     "powers": {
