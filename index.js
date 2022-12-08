@@ -388,7 +388,20 @@ function getCoopMapDataSchedules3(scheduleData3) {
   if (!scheduleData3) {
     return '数据未读取，请稍后再试';
   }
-  scheduleData3?.data?.coopGroupingSchedule?.regularSchedules?.nodes?.forEach((node, coopIndex, coopArray) => {
+  const coopGroupingSchedule = scheduleData3?.data?.coopGroupingSchedule;
+  const regularNodes = coopGroupingSchedule?.regularSchedules?.nodes;
+  const bigRunNodes = coopGroupingSchedule?.bigRunSchedules?.nodes;
+  // 合并数组，并以startTime排序
+  const nodes = regularNodes.concat(bigRunNodes).sort((a, b) => {
+    return new Date(a?.startTime) - new Date(b?.startTime);
+  });
+  nodes.forEach((node, coopIndex, coopArray) => {
+    // 根据__typename判断是大型跑还是常规打工
+    const bigRunFlag = node?.setting?.__typename == 'CoopBigRunSetting';
+    // 如果是大型跑，增加大型跑标识
+    if (bigRunFlag) {
+      result += `<<【===【大型跑】===】>>>\n`;
+    }
     const startTime = new Date(node?.startTime).toLocaleString();
     result += `${startTime.toLocaleString()}：\n`;
     const coopStage = node?.setting?.coopStage;
@@ -409,7 +422,6 @@ function getCoopMapDataSchedules3(scheduleData3) {
     }
   }, this);
   return result;
-
 }
 
 function getMapDataFromSchedules2(scheduleData2) {
