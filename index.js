@@ -68,6 +68,10 @@ function doCommand(command) {
     return getMapDataFromSchedules3Modified(scheduleData3,'regular');
   } else if (command.match(/^(蛮颓||真格||3真格)$/)) {
     return getMapDataFromSchedules3Modified(scheduleData3,'bankara');
+  } else if (command.match(/^((蛮颓)?挑战)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'challenge');
+  } else if (command.match(/^((蛮颓)?开放)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'open');
   } else if (command.match(/^(x||X)$/)) {
     return getMapDataFromSchedules3Modified(scheduleData3,'x');
   } else if (command.match(/^(联盟||组排||3组排)$/)) {
@@ -92,7 +96,7 @@ function doCommand(command) {
     return getCoopMapDataSchedules2Modified(scheduleData2CoopNew);
   } else {
     return `未知命令：${command}\n可使用命令有：\n(2|3)图(全) (2|3)工(全|原)\n`
-      +`(2|3)涂地 (2|3)真格 (2|3)联盟\n蛮颓 X\n括号内为可选参数，默认为3代`;
+      +`(2|3)涂地 (2|3)真格 (2|3)联盟\n蛮颓 (蛮颓)挑战 (蛮颓)开放 X\n括号内为可选参数，默认为3代`;
   }
 }
 
@@ -259,7 +263,7 @@ function getMapDataFromSchedules3(scheduleData3) {
       result += get3RegularMatches(scheduleData3, offset, true);
       result += `\n`;
       // result += `真格对战：\n`;
-      result += get3BankaraMatches(scheduleData3, offset, false);
+      result += get3BankaraMatches(scheduleData3, offset, false, null);
       result += `\n`;
       // result += `X对战：\n`;
       result += get3XMatches(scheduleData3, offset, false);
@@ -295,7 +299,7 @@ function getMapDataFromSchedules3Modified(scheduleData3,mode) {
         let result = '';
         result += get3RegularMatches(scheduleData3, offset, true);
         result += `\n`;
-        result += get3BankaraMatches(scheduleData3, offset, false);
+        result += get3BankaraMatches(scheduleData3, offset, false, null);
         result += `\n`;
         result += get3XMatches(scheduleData3, offset, false);
         // result += `\n`;
@@ -304,7 +308,11 @@ function getMapDataFromSchedules3Modified(scheduleData3,mode) {
       } else if (mode == 'regular') {
         results.push(get3RegularMatches(scheduleData3, offset, true));
       } else if (mode == 'bankara') {
-        results.push(get3BankaraMatches(scheduleData3, offset, true));
+        results.push(get3BankaraMatches(scheduleData3, offset, true, null));
+      } else if (mode == 'challenge') {
+        results.push(get3BankaraMatches(scheduleData3, offset, true, 'challenge'));
+      } else if (mode == 'open') {
+        results.push(get3BankaraMatches(scheduleData3, offset, true, 'open'));
       } else if (mode == 'x') {
         results.push(get3XMatches(scheduleData3, offset, true));
       } else if (mode == 'league') {
@@ -341,7 +349,7 @@ function get3RegularMatches(scheduleData3,offset,timePrefix) {
   return result;
 }
 
-function get3BankaraMatches(scheduleData3,offset,timePrefix) {
+function get3BankaraMatches(scheduleData3,offset,timePrefix,mode) {
   let result = '';
   scheduleData3?.data?.bankaraSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
     // 将字符串时间node?.startTime转换为本地时间字符串
@@ -349,9 +357,17 @@ function get3BankaraMatches(scheduleData3,offset,timePrefix) {
     if (timePrefix) {
       result += `${startTime.toLocaleString()}：\n`;
     }
+    let modeIndex = mode == 'challenge' ? 0 : mode == 'open' ? 1 : -1;
     if (node?.bankaraMatchSettings) {
-      node?.bankaraMatchSettings.forEach((setting, bankaraIndex, bankaraArray) => {
-        result += getDetailData3('蛮颓挑战', setting);
+      node?.bankaraMatchSettings.filter((setting, bankaraIndex) => {
+        if (modeIndex == -1) {
+          return true;
+        } else {
+          return bankaraIndex == modeIndex;
+        }
+      })
+      .forEach((setting, bankaraIndex, bankaraArray) => {
+        result += getDetailData3('蛮颓', setting);
         if (bankaraIndex < bankaraArray.length - 1) {
           result += `\n`;
         }
@@ -688,6 +704,7 @@ function getCoopMapDataSchedules2Modified(schedulesData2CoopNew) {
   results.push(`Splatoon 2 工时表`);
 
   let result = '';
+  let lengthCount = 0;
 
   scheduleData2CoopNew?.Phases?.filter((phase,index,array) =>new Date(phase.EndDateTime) > new Date())
       .forEach((phase,index,array) => {
@@ -714,13 +731,20 @@ function getCoopMapDataSchedules2Modified(schedulesData2CoopNew) {
         result += '\n >>> 全部熊武器限定随机 <<<';
         results.push(result);
         result = '';
+        lengthCount = 0;
       } else if (randomFlag == -1) {
         const rareWeapon = translationsData2?.weapons?.[phase?.RareWeaponID]?.name ?? phase?.RareWeaponID;
         result += `\n >> 随机稀有武器：${rareWeapon} <<`;
         results.push(result);
         result = '';
+        lengthCount = 0;
+      } else if (lengthCount > 4) {
+        results.push(result);
+        result = '';
+        lengthCount = 0;
       } else if (index < array.length - 1) {
-        result += `\n----------\n`; 
+        result += `\n----------\n`;
+        lengthCount++;
       }
     });
   results.push(result);
