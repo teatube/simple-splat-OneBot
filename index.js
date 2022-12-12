@@ -738,7 +738,7 @@ function getCoopMapDataSchedules2Modified(schedulesData2CoopNew) {
         results.push(result);
         result = '';
         lengthCount = 0;
-      } else if (lengthCount > 4) {
+      } else if (lengthCount >= 3) {
         results.push(result);
         result = '';
         lengthCount = 0;
