@@ -60,30 +60,44 @@ setInterval(() => {
 
 
 function doCommand(command) {
-  // do something
-  switch (command) {
-    case '图':
-      return getMapDataFromSchedules3(scheduleData3);
-    case '3图':
-      return getMapDataFromSchedules3(scheduleData3);
-    case '工':
-      return getCoopMapDataSchedules3(scheduleData3);
-    case '3工':
-      return getCoopMapDataSchedules3(scheduleData3);
-    case 'data':
-      return getMapDataFromSchedules3(scheduleData3);
-    case `2图`:
-      return getMapDataFromSchedules2(scheduleData2);
-    case `2工`:
-      return getCoopMapDataSchedules2(scheduleData2Coop);
-    case `2工全`:
-      return getCoopMapDataSchedules2New(scheduleData2CoopNew);
-    case `a`:
-      return renameWeapons2();
-    default:
-      break;
+  if (command.match(/^(图||3图)$/)) {
+    return getMapDataFromSchedules3(scheduleData3);
+  } else if (command.match(/^(图全||3图全)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,null);
+  } else if (command.match(/^(涂地||3涂地)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'regular');
+  } else if (command.match(/^(蛮颓||真格||3真格)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'bankara');
+  } else if (command.match(/^((蛮颓)?挑战)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'challenge');
+  } else if (command.match(/^((蛮颓)?开放)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'open');
+  } else if (command.match(/^(x||X)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'x');
+  } else if (command.match(/^(联盟||组排||3组排)$/)) {
+    return getMapDataFromSchedules3Modified(scheduleData3,'league');
+  } else if (command.match(/^(工||3工)$/)) {
+    return getCoopMapDataSchedules3(scheduleData3);
+  } else if (command.match(/^(2图)$/)) {
+    return getMapDataFromSchedules2(scheduleData2);
+  } else if (command.match(/^(2图全)$/)) {
+    return getMapDataFromSchedules2Modified(scheduleData2,null);
+  } else if (command.match(/^(2涂地)$/)) {
+    return getMapDataFromSchedules2Modified(scheduleData2,'regular');
+  } else if (command.match(/^(2真格)$/)) {
+    return getMapDataFromSchedules2Modified(scheduleData2,'gachi');
+  } else if (command.match(/^(2联盟||2组排)$/)) {
+    return getMapDataFromSchedules2Modified(scheduleData2,'league');
+  } else if (command.match(/^(2工原)$/)) {
+    return getCoopMapDataSchedules2(scheduleData2Coop);
+  } else if (command.match(/^(2工)$/)) {
+    return getCoopMapDataSchedules2New(scheduleData2CoopNew);
+  } else if (command.match(/^(2工全)$/)) {
+    return getCoopMapDataSchedules2Modified(scheduleData2CoopNew);
+  } else {
+    return `未知命令：${command}\n可使用命令有：\n(2|3)图(全) (2|3)工(全|原)\n`
+      +`(2|3)涂地 (2|3)真格 (2|3)联盟\n蛮颓 (蛮颓)挑战 (蛮颓)开放 X\n括号内为可选参数，默认为3代`;
   }
-  // return `接收到查询指令：${command}`
 }
 
 function sendMsg(message, data) {
@@ -112,7 +126,7 @@ async function sendMessage(message, message_type, item, data) {
         action: 'send_private_forward_msg',
         params: {
           user_id: item,
-          messages: JSON.stringify(messageToForward(message,data)),
+          messages: messageToForward(message,data),
         }
       }))
     } else {
@@ -132,7 +146,7 @@ async function sendMessage(message, message_type, item, data) {
         action: 'send_group_forward_msg',
         params: {
           group_id: item,
-          messages: JSON.stringify(messageToForward(message,data)),
+          messages: messageToForward(message,data),
         }
       }))
     } else {
@@ -154,8 +168,8 @@ function messageToForward(messages,data) {
     let node = {
       type : "node",
       data : {
-        name : data?.sender?.nickname,
-        uin : data?.sender?.user_id,
+        name : `To : ${data?.sender?.nickname}`,
+        uin : data?.self_id,
         content : message
       }
     }
@@ -209,11 +223,13 @@ async function getSchedule(url,loadMsg,successMsg) {
         'User-Agent': config.UserAgent
       }
     });
-    console.log(data);
+    // console.log(data);
     console.log(`${successMsg}`);
     return data;
   } catch (error) {
     console.log(`获取数据失败：${error}`);
+    // 延迟 10 秒后重试
+    await sleep(10000);
     getSchedule(url,loadMsg,successMsg);
   }
 }
@@ -236,7 +252,7 @@ async function getTranlations2() {
 
 function getMapDataFromSchedules3(scheduleData3) {
   let result = '';
-  console.log(scheduleData3);
+  // console.log(scheduleData3);
   if (!scheduleData3) {
     return '数据未读取，请稍后再试';
   }
@@ -244,48 +260,116 @@ function getMapDataFromSchedules3(scheduleData3) {
   if (!scheduleData3?.data?.currentFest) {
     for (let offset = 0; offset < num; offset++) {
       // result += `涂地对战：\n`;
-      result += get3RegularMatches(scheduleData3, offset);
+      result += get3RegularMatches(scheduleData3, offset, true);
+      result += `\n`;
       // result += `真格对战：\n`;
-      result += get3BankaraMatches(scheduleData3, offset);
+      result += get3BankaraMatches(scheduleData3, offset, false, null);
+      result += `\n`;
+      // result += `X对战：\n`;
+      result += get3XMatches(scheduleData3, offset, false);
+      // result += `\n`;
+      // result += `联赛对战：\n`;
+      // result += get3LeagueMatches(scheduleData3, offset, false);
       if (offset < num - 1) {
         result += `\n--------------\n`;
       }
     }
   } else {
     // 祭典时间！
-    result += festPerfix(scheduleData3);
+    result += festPrefix(scheduleData3);
     result += `--------------\n`;
     for (let offset = 0; offset < num; offset++) {
       // 祭典对战
-      result += get3FestMatches(scheduleData3, offset);
+      result += get3FestMatches(scheduleData3, offset, true);
     }
   }
   return result;
 }
 
-function get3RegularMatches(scheduleData3,offset) {
+function getMapDataFromSchedules3Modified(scheduleData3,mode) {
+  let results = [];
+  // console.log(scheduleData3);
+  if (!scheduleData3) {
+    return '数据未读取，请稍后再试';
+  }
+  let num = 12;
+  if (!scheduleData3?.data?.currentFest) {
+    for (let offset = 0; offset < num; offset++) {
+      if (!mode){
+        let result = '';
+        result += get3RegularMatches(scheduleData3, offset, true);
+        result += `\n`;
+        result += get3BankaraMatches(scheduleData3, offset, false, null);
+        result += `\n`;
+        result += get3XMatches(scheduleData3, offset, false);
+        // result += `\n`;
+        // result += get3LeagueMatches(scheduleData3, offset, false);
+        results.push(result);
+      } else if (mode == 'regular') {
+        results.push(get3RegularMatches(scheduleData3, offset, true));
+      } else if (mode == 'bankara') {
+        results.push(get3BankaraMatches(scheduleData3, offset, true, null));
+      } else if (mode == 'challenge') {
+        results.push(get3BankaraMatches(scheduleData3, offset, true, 'challenge'));
+      } else if (mode == 'open') {
+        results.push(get3BankaraMatches(scheduleData3, offset, true, 'open'));
+      } else if (mode == 'x') {
+        results.push(get3XMatches(scheduleData3, offset, true));
+      } else if (mode == 'league') {
+        results.push(get3LeagueMatches(scheduleData3, offset, true));
+      }
+    }
+  } else {
+    // 祭典时间！
+    results.push(festPrefix(scheduleData3));
+    for (let offset = 0; offset < num; offset++) {
+      // 祭典对战
+      results.push(get3FestMatches(scheduleData3, offset, true));
+    }
+  }
+  //清空空字符串
+  results = results.filter((item) => item != '');
+  // 如果没有数据
+  if (results.length == 0) {
+    return '没有数据';
+  }
+  return results;
+}
+
+function get3RegularMatches(scheduleData3,offset,timePrefix) {
   let result = '';
   scheduleData3?.data?.regularSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
-    // 将字符串时间node?.startTime转换为本地时间字符串
     const startTime = new Date(node?.startTime).toLocaleString();
-    result += `${startTime.toLocaleString()}：\n`;
+    if (timePrefix) {
+      // 将字符串时间node?.startTime转换为本地时间字符串
+      result += `${startTime.toLocaleString()}：\n`;
+    }
     result += getDetailData3('一般对战', node?.regularMatchSetting);
-    result += `\n`;
   }, this);
   return result;
 }
 
-function get3BankaraMatches(scheduleData3,offset) {
+function get3BankaraMatches(scheduleData3,offset,timePrefix,mode) {
   let result = '';
   scheduleData3?.data?.bankaraSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
     // 将字符串时间node?.startTime转换为本地时间字符串
     const startTime = new Date(node?.startTime).toLocaleString();
-    // result += `${startTime.toLocaleString()}：\n`;
+    if (timePrefix) {
+      result += `${startTime.toLocaleString()}：\n`;
+    }
+    let modeIndex = mode == 'challenge' ? 0 : mode == 'open' ? 1 : -1;
     if (node?.bankaraMatchSettings) {
-      node?.bankaraMatchSettings.forEach((setting, bankaraIndex, bankaraArray) => {
-        result += getDetailData3('蛮颓挑战', setting);
+      node?.bankaraMatchSettings.filter((setting, bankaraIndex) => {
+        if (modeIndex == -1) {
+          return true;
+        } else {
+          return bankaraIndex == modeIndex;
+        }
+      })
+      .forEach((setting, bankaraIndex, bankaraArray) => {
+        result += getDetailData3('蛮颓', setting);
         if (bankaraIndex < bankaraArray.length - 1) {
-          result += `\n`
+          result += `\n`;
         }
       }, this);
     }
@@ -293,7 +377,33 @@ function get3BankaraMatches(scheduleData3,offset) {
   return result;
 }
 
-function festPerfix(scheduleData3) {
+function get3XMatches(scheduleData3,offset,timePrefix) {
+  let result = '';
+  scheduleData3?.data?.xSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
+    // 将字符串时间node?.startTime转换为本地时间字符串
+    const startTime = new Date(node?.startTime).toLocaleString();
+    if (timePrefix) {
+      result += `${startTime.toLocaleString()}：\n`;
+    }
+    result += getDetailData3(' Ｘ 对战', node?.xMatchSetting);
+  }, this);
+  return result;
+}
+
+function get3LeagueMatches(scheduleData3,offset,timePrefix) {
+  let result = '';
+  scheduleData3?.data?.leagueSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
+    // 将字符串时间node?.startTime转换为本地时间字符串
+    const startTime = new Date(node?.startTime).toLocaleString();
+    if (timePrefix) {
+      result += `${startTime.toLocaleString()}：\n`;
+    }
+    result += getDetailData3('联赛对战', node?.leagueMatchSetting);
+  }, this);
+  return result;
+}
+
+function festPrefix(scheduleData3) {
   let result = '';
   const currentFest = scheduleData3?.data?.currentFest;
   result += `正在进行祭典：${currentFest?.title}\n`;
@@ -310,12 +420,14 @@ function festPerfix(scheduleData3) {
   return result;
 }
 
-function get3FestMatches(scheduleData3,offset) {
+function get3FestMatches(scheduleData3,offset,timePrefix) {
   let result = '';
   scheduleData3?.data?.festSchedules?.nodes?.filter((node, index) => index == offset).forEach((node) => {
     // 将字符串时间node?.startTime转换为本地时间字符串
     const startTime = new Date(node?.startTime).toLocaleString();
-    result += `${startTime.toLocaleString()}：\n`;
+    if (timePrefix) {
+      result += `${startTime.toLocaleString()}：\n`;
+    }
     result += getDetailData3('祭典对战', node?.festMatchSetting);
   }, this);
 
@@ -354,13 +466,28 @@ function getDetailData3(modeName,setting) {
   return result;
 }
 
+
+
 function getCoopMapDataSchedules3(scheduleData3) {
   let result = '';
-  console.log(scheduleData3);
+  // console.log(scheduleData3);
   if (!scheduleData3) {
     return '数据未读取，请稍后再试';
   }
-  scheduleData3?.data?.coopGroupingSchedule?.regularSchedules?.nodes?.forEach((node, coopIndex, coopArray) => {
+  const coopGroupingSchedule = scheduleData3?.data?.coopGroupingSchedule;
+  const regularNodes = coopGroupingSchedule?.regularSchedules?.nodes;
+  const bigRunNodes = coopGroupingSchedule?.bigRunSchedules?.nodes;
+  // 合并数组，并以startTime排序
+  const nodes = regularNodes.concat(bigRunNodes).sort((a, b) => {
+    return new Date(a?.startTime) - new Date(b?.startTime);
+  });
+  nodes.forEach((node, coopIndex, coopArray) => {
+    // 根据__typename判断是大型跑还是常规打工
+    const bigRunFlag = node?.setting?.__typename == 'CoopBigRunSetting';
+    // 如果是大型跑，增加大型跑标识
+    if (bigRunFlag) {
+      result += `<<【===【大型跑】===】>>>\n`;
+    }
     const startTime = new Date(node?.startTime).toLocaleString();
     result += `${startTime.toLocaleString()}：\n`;
     const coopStage = node?.setting?.coopStage;
@@ -381,12 +508,11 @@ function getCoopMapDataSchedules3(scheduleData3) {
     }
   }, this);
   return result;
-
 }
 
 function getMapDataFromSchedules2(scheduleData2) {
   let result = '';
-  console.log(scheduleData2);
+  // console.log(scheduleData2);
   if (!scheduleData2) {
     return '数据未读取，请稍后再试';
   }
@@ -397,16 +523,15 @@ function getMapDataFromSchedules2(scheduleData2) {
   // 获取scheduleData2.league并解析
   const leagueMatches = scheduleData2?.league;
   const regularMatches = scheduleData2?.regular;
-  const gachiMatches = scheduleData2?.gachi
+  const gachiMatches = scheduleData2?.gachi;
   for (let offset = 0; offset < num; offset++) {
     const startTime = new Date(regularMatches[offset]?.start_time * 1000)?.toLocaleString();
-    console.log(startTime);
     result += `${startTime?.toLocaleString()}：\n`;
-    result += getDetailData2(regularMatches,offset);
+    result += getDetailData2(regularMatches,offset,false);
     result += `\n`;
-    result += getDetailData2(gachiMatches,offset);
+    result += getDetailData2(gachiMatches,offset,false);
     result += `\n`;
-    result += getDetailData2(leagueMatches,offset);
+    result += getDetailData2(leagueMatches,offset,false);
     if (offset < num - 1) {
       result += `\n--------------\n`;
     }
@@ -415,8 +540,55 @@ function getMapDataFromSchedules2(scheduleData2) {
   return result;
 }
 
-function getDetailData2(data,offset) {
+function getMapDataFromSchedules2Modified(scheduleData2,mode) {
+  let results = [];
+  // console.log(scheduleData2);
+  if (!scheduleData2) {
+    return '数据未读取，请稍后再试';
+  }
+
+  const num = 12;
+
+  const leagueMatches = scheduleData2?.league;
+  const regularMatches = scheduleData2?.regular;
+  const gachiMatches = scheduleData2?.gachi;
+
+  for (let offset = 0; offset < num; offset++) {
+    let result = '';
+    if (!mode) {
+      const startTime = new Date(regularMatches[offset]?.start_time * 1000)?.toLocaleString();
+      result += `${startTime?.toLocaleString()}：\n`;
+      result += getDetailData2(regularMatches,offset,false);
+      result += `\n`;
+      result += getDetailData2(gachiMatches,offset,false);
+      result += `\n`;
+      result += getDetailData2(leagueMatches,offset,false);
+    } else if (mode == 'regular') {
+      result += getDetailData2(regularMatches,offset,true);
+    } else if (mode == 'gachi') {
+      result += getDetailData2(gachiMatches,offset,true);
+    } else if (mode == 'league') {
+      result += getDetailData2(leagueMatches,offset,true);
+    }
+    results.push(result);
+  }
+
+  // 去除空字符串
+  results = results.filter((result) => result != '');
+  // 如果没有结果，返回提示
+  if (results.length == 0) {
+    return '没有数据';
+  }
+  return results;
+}
+
+
+function getDetailData2(data,offset,timePrefix) {
   let result = '';
+  const startTime = new Date(data[offset]?.start_time * 1000)?.toLocaleString();
+  if (timePrefix) {
+    result += `${startTime?.toLocaleString()}：\n`;
+  }
   // 根据偏移输出【比赛类型·具体规则】
   const node = data?.filter((node, index) => index == offset)[0];
   const modeCN = translationsData2?.game_modes?.[node?.game_mode?.key]?.name ?? node?.rule.name;
@@ -437,7 +609,7 @@ function getDetailData2(data,offset) {
 
 function getCoopMapDataSchedules2(scheduleData2Coop) {
   let result = '';
-  console.log(scheduleData2Coop);
+  // console.log(scheduleData2Coop);
 
   if (!scheduleData2Coop) {
     return '数据未读取，请稍后再试';
@@ -477,7 +649,7 @@ function getCoopMapDataSchedules2(scheduleData2Coop) {
 
 function getCoopMapDataSchedules2New(schedulesData2CoopNew) {
   let result = '';
-  console.log(schedulesData2CoopNew);
+  // console.log(schedulesData2CoopNew);
 
   if (!scheduleData2CoopNew) {
     return '数据未读取，请稍后再试';
@@ -519,6 +691,70 @@ function getCoopMapDataSchedules2New(schedulesData2CoopNew) {
       }
     });
   return result;
+}
+
+function getCoopMapDataSchedules2Modified(schedulesData2CoopNew) {
+  let results = [];
+  // console.log(schedulesData2CoopNew);
+
+  if (!scheduleData2CoopNew) {
+    return '数据未读取，请稍后再试';
+  }
+
+  results.push(`Splatoon 2 工时表`);
+
+  let result = '';
+  let lengthCount = 0;
+
+  scheduleData2CoopNew?.Phases?.filter((phase,index,array) =>new Date(phase.EndDateTime) > new Date())
+      .forEach((phase,index,array) => {
+      // phase?.StartDateTime 为 UTC 时间，加8小时为北京时间
+      const startTime = timeFormat(`mm/dd hh:ii`,new Date(phase?.StartDateTime).getTime() + 8 * 60 * 60 * 1000);
+      const endTime = timeFormat(`mm/dd hh:ii`,new Date(phase?.EndDateTime).getTime() + 8 * 60 * 60 * 1000);
+      result += `${startTime} ~ ${endTime}：\n`;
+      const stageName = translationsData2?.coop_stages?.[phase?.StageID]?.name ?? phase?.StageID;
+      result += `=> ${stageName}\n`;
+      const weapons = phase?.WeaponSets;
+      let randomFlag = 0;
+      weapons?.forEach((weapon, index) => {
+        const weaponId = weapon;
+        if (weaponId < 0) {
+          randomFlag = weaponId;
+        }
+        const weaponName = translationsData2?.weapons?.[weaponId]?.name ?? weaponId;
+        result += `${weaponName}`;
+        if (index < weapons.length - 1) {
+          result += ' / '
+        }
+      });
+      if (randomFlag == -2) {
+        result += '\n >>> 全部熊武器限定随机 <<<';
+        results.push(result);
+        result = '';
+        lengthCount = 0;
+      } else if (randomFlag == -1) {
+        const rareWeapon = translationsData2?.weapons?.[phase?.RareWeaponID]?.name ?? phase?.RareWeaponID;
+        result += `\n >> 随机稀有武器：${rareWeapon} <<`;
+        results.push(result);
+        result = '';
+        lengthCount = 0;
+      } else if (lengthCount >= 3) {
+        results.push(result);
+        result = '';
+        lengthCount = 0;
+      } else if (index < array.length - 1) {
+        result += `\n----------\n`;
+        lengthCount++;
+      }
+    });
+  results.push(result);
+  // 清空空字符串
+  results = results.filter(item => item != '');
+  // 如果没有数据，返回提示
+  if (results.length == 0) {
+    return '暂无数据';
+  }
+  return results;
 }
 
 /*
